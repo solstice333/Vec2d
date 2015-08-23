@@ -2,16 +2,24 @@
 #define VEC2D_H
 
 #include <vector>
+#include "iter.h"
 
 using namespace std;
 
+
 template<typename T> 
 class Vec2d {
+   enum Pos {BEG, END};
 public:
    Vec2d();
    Vec2d(int row, int col);
    vector<T>& operator[](const int idx);
    int get_num_rows();
+
+   class iterator : public Iter<T> {
+      iterator(vector< vector<T> > &vv, Pos p = BEG);
+      iterator(const iterator &i);
+   };
 private:
    vector< vector<T> > _v;
 };
@@ -35,6 +43,12 @@ vector<T>& Vec2d<T>::operator[](const int idx) {
    return _v[idx];
 }
 
+template<typename T> 
+Vec2d<T>::iterator::iterator(vector< vector<T> > &vv, Pos p) : 
+ Iter<T>(vv, p) {}
 
+template<typename T> 
+Vec2d<T>::iterator::iterator(const iterator &i) : 
+ Iter<T>(i) {}
 
 #endif

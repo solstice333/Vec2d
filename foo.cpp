@@ -32,7 +32,7 @@ void iterator_tests() {
    }
    cout << "end of contents" << endl;
 
-   // test iterator prefix increment with 2d vecs
+   // test iterator pre-incr with 2d vecs
    Iter<int> itr(vv);
    int columns;
 
@@ -41,7 +41,6 @@ void iterator_tests() {
 
    for (int i = 0; i < vv.size() * columns; ++i, ++itr)
       assert(*itr == i + 1);
-
 
    // test iter set_iter, get_end, != overload, post-incr, * deref
    vector<int> v(2);
@@ -54,6 +53,29 @@ void iterator_tests() {
 
    for (int val = 1; itr != end; itr++, ++val)
       assert(*itr == val);
+
+   // test == overload
+   itr.set_iter(vv);
+   Iter<int> other_itr(vv);
+   assert(itr == other_itr);
+   assert(!(++itr == other_itr));
+
+   // test copy constructor
+   Iter<int> copy_itr(itr++);
+   assert(copy_itr != itr);
+   ++itr;
+   assert(copy_itr != itr);
+   ++copy_itr;
+   ++copy_itr;
+   assert(copy_itr == itr);
+
+   // test assignment overload
+   itr.set_iter(vv);
+   copy_itr = itr;
+   ++itr;
+   assert(copy_itr != itr);
+   ++copy_itr;
+   assert(copy_itr == itr);
 }
 
 void constructor_tests_vec2d() {
