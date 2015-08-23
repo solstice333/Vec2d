@@ -2,35 +2,29 @@
 #include <cstring>
 #include <iostream>
 #include <assert.h>
+#include "iter.h"
 #include "vec2d.h"
-
-#define ITER_PUBLIC 1
 
 using namespace std;
 
-#if ITER_PUBLIC == 1
-typedef Vec2d<int>::Iterator Iterator;
-#endif
-
+// iterator_tests_int_array() : iterator tests using single dimension vector
 void iterator_tests_int_array() {
-#if ITER_PUBLIC == 1
-   // iterator tests using single dimension vector
    int my_ints[] = {0, 1, 2, 3, 4};
-   Iterator my_iter_beg(my_ints); 
-   Iterator my_iter_end(my_ints + sizeof(my_ints)/sizeof(int));
+   Iter<int> my_iter_beg(my_ints); 
+   Iter<int> my_iter_end(my_ints + sizeof(my_ints)/sizeof(int));
 
-   Iterator my_iter_beg1(my_iter_beg);
-   Iterator my_iter_end1(my_ints + sizeof(my_ints)/sizeof(int));
+   Iter<int> my_iter_beg1(my_iter_beg);
+   Iter<int> my_iter_end1(my_ints + sizeof(my_ints)/sizeof(int));
 
    assert(my_iter_beg == my_iter_beg1);
    assert(!(my_iter_beg == my_iter_end));
    assert(my_iter_beg != my_iter_end);
    assert(!(my_iter_beg != my_iter_beg1));
 
-   Iterator my_iter_next(my_ints + 1);
-   assert(typeid(Iterator) == typeid(my_iter_beg));
-   assert(typeid(Iterator) == typeid(++my_iter_beg));
-   assert(typeid(Iterator) == typeid(my_iter_next));
+   Iter<int> my_iter_next(my_ints + 1);
+   assert(typeid(Iter<int>) == typeid(my_iter_beg));
+   assert(typeid(Iter<int>) == typeid(++my_iter_beg));
+   assert(typeid(Iter<int>) == typeid(my_iter_next));
 
    assert(my_iter_beg == my_iter_beg1);
    assert(++my_iter_beg != my_iter_beg1);
@@ -40,16 +34,14 @@ void iterator_tests_int_array() {
    assert(my_iter_beg != my_iter_beg1);
 
    my_iter_beg = my_ints;
-   Iterator *my_iter_ptr = new Iterator(my_ints);
+   Iter<int> *my_iter_ptr = new Iter<int>(my_ints);
    assert(*my_iter_ptr == my_iter_beg);
    my_iter_ptr->set_iter(my_ints + 1);
    assert(**my_iter_ptr == 1);
    delete my_iter_ptr;
-#endif
 }
 
 void iterator_tests_vector() {
-#if ITER_PUBLIC
    vector< vector<int> > v(2);
    int val = 0;
 
@@ -69,20 +61,19 @@ void iterator_tests_vector() {
 
    // test iterator with 2d vecs
    // Iterator my_iter(&v);
-#endif 
 }
 
 void constructor_tests_vec2d() {
    Vec2d<int> matrix;
    Vec2d<int> matrix1(3, 2);
 
-   cout << matrix1.get_num_rows() << endl;
+   assert(matrix1.get_num_rows() == 3);
    matrix1[0][0] = 90;
-   cout << matrix1[0][0] << endl;
+   assert(matrix1[0][0] == 90);
    matrix1[0][1] = 80;
-   cout << matrix1[0][1] << endl;
+   assert(matrix1[0][1] == 80);
    matrix1[0][0] = 100;
-   cout << matrix1[0][0] << endl;
+   assert(matrix1[0][0] == 100);
 }
 
 int main() {
