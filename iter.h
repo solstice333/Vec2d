@@ -14,7 +14,7 @@ public:
    Iter(vector< vector<T> > &vv, Pos p = BEG);
    Iter(const Iter &i);
    Iter& operator=(const Iter &i);
-   Iter& set_iter(vector< vector<T> > &vv);
+   Iter& set_iter(vector< vector<T> > &vv, Pos p = BEG);
    bool operator!=(const Iter &r);
    bool operator==(const Iter &r);
    Iter& operator++();
@@ -22,27 +22,42 @@ public:
    T& operator*();
 
 private:
+   void dynamic_construction(Pos p);
+
    typename vector<T>::iterator _i;
    vector< typename vector<T>::iterator > _ends;
    vector< vector<T> > *_vv;
+   vector< vector<T> > _dummy;
    int _row, _last_row;
 };
 
 template<typename T>
-Iter<T>::Iter(vector< vector<T> > &vv, Pos p) : _i(vv.begin()->begin()), _row(0),
- _last_row(vv.size() - 1), _vv(&vv) {
-   for (int i = 0; i < vv.size(); ++i)
-      _ends.push_back(vv[i].end());
+void Iter<T>::dynamic_construction(Pos p) {
+   if (_vv->size() > 0) {
+      _i = _vv->begin()->begin();
+      for (int i = 0; i < _vv->size(); ++i)
+         _ends.push_back((*_vv)[i].end());
 
-   if (p == END) {
-      _row = _last_row = vv.size() - 1;
-      _i = vv[_last_row].end();
+      if (p == END) {
+         _row = _last_row;
+         _i = (*_vv)[_last_row].end(); 
+      }
+   }
+   else {
+      _i = _dummy[0].begin();
+      _row = _last_row = 0;
    }
 }
 
 template<typename T>
+Iter<T>::Iter(vector< vector<T> > &vv, Pos p) : _row(0),
+ _last_row(static_cast<int>(vv.size()) - 1), _vv(&vv), _dummy(1) {
+    dynamic_construction(p);
+}
+
+template<typename T>
 Iter<T>::Iter(const Iter &i) : _i(i._i), _ends(i._ends), _row(i._row), 
- _vv(i._vv), _last_row(i._last_row) {}
+ _vv(i._vv), _last_row(i._last_row), _dummy(i._dummy) {}
 
 template<typename T>
 Iter<T>& Iter<T>::operator=(const Iter &i) {
@@ -51,17 +66,17 @@ Iter<T>& Iter<T>::operator=(const Iter &i) {
    _row = i._row;
    _last_row = i._last_row;
    _vv = i._vv;
+   _dummy = i._dummy;
    return *this;
 }
 
 template<typename T>
-Iter<T>& Iter<T>::set_iter(vector< vector<T> > &vv) {
-   _i = vv.begin()->begin();
+Iter<T>& Iter<T>::set_iter(vector< vector<T> > &vv, Pos p) {
    _row = 0;
-   for (int i = 0; i < vv.size(); ++i)
-      _ends.push_back(vv[i].end());
-   _last_row = vv.size() - 1;
+   _last_row = static_cast<int>(vv.size()) - 1;
    _vv = &vv;
+   _dummy.resize(1);
+   dynamic_construction(p);
    return *this;
 }
 

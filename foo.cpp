@@ -7,6 +7,27 @@
 
 using namespace std;
 
+class Integer {
+public:
+   Integer(int x) : _x(x) {}
+   int get_int() { return _x; }
+private:
+   int _x;
+};
+
+void print_matrix(Vec2d<int> &matrix) {
+   cout << "2d vector contents" << endl;
+   for (int i = 0; i < matrix.get_num_rows(); ++i) {
+      for (int j = 0; j < matrix.get_num_cols(); ++j) {
+         if (j > 0)
+            cout << ", ";
+         cout << matrix[i][j];
+      }
+      cout << endl;
+   }
+   cout << "end of contents" << endl;  
+}
+
 // iterator_tests() : tests the public Iter class logic.
 void iterator_tests() {
    vector< vector<int> > vv(2);
@@ -90,35 +111,88 @@ void internal_iterator_tests() {
          matrix[i][j] = i + j;
    }
 
-   cout << "2d vector contents" << endl;
-   for (int i = 0; i < matrix.get_num_rows(); ++i) {
-      for (int j = 0; j < matrix.get_num_cols(); ++j) {
-         if (j > 0)
-            cout << ", ";
-         cout << matrix[i][j];
-      }
-      cout << endl;
-   }
-   cout << "end of contents" << endl;
-
+   // basic tests
+   print_matrix(matrix);
    int cols = matrix.get_num_cols();
    int rows = matrix.get_num_rows();
    int i = 0, j = 0;
    for (auto itr = matrix.begin(), end = matrix.end(); itr != end; ++itr) {
-      cout << *itr << endl;
-
       if (i >= cols) {
          i = 0;
          ++j;
       }
       assert(*itr == matrix[j][i++]);
    }
+
+   // test iterator on empty vec2d
+   Vec2d<int> v;
+   Vec2d<int> v1;
+   Vec2d<int> v2;
+   auto begin = v.begin();
+   auto end = v.end();
+   assert(begin == end);
+   Vec2d<int> copy = v;
+   begin = v.begin();
+   end = copy.end();
+   assert(begin == end);
+   copy = v1;
+   begin = v1.begin();
+   end = copy.end();
+   assert(begin == end);
+
+   for (auto i = v.begin(); i != v.end(); ++i)
+      assert(false);
+}
+
+void other_vec2d_methods_tests() {
+   // add_rows() first then add_cols()
+   Vec2d<int> vv;
+   assert(vv.get_num_rows() == 0);
+   assert(vv.get_num_cols() == 0);
+
+   int num_rows = vv.add_rows(2, 33);
+   for (int i : vv)
+      assert(i == 33);
+   assert(num_rows == 2);
+   assert(vv.get_num_rows() == 2);
+
+   int num_cols = vv.add_cols(2, 33);
+   for (int i : vv)
+      assert(i == 33);
+   assert(num_cols == 3);
+   assert(vv.get_num_cols() == 3);
+
+   // add_cols() first then add_rows()
+   Vec2d<int> vv1;
+
+   num_cols = vv1.add_cols(2, 44);
+   for (int i : vv1)
+      assert(i == 44);
+   assert(num_cols == 2);
+   assert(vv1.get_num_cols() == 2);
+   assert(vv1.get_num_rows() == 1);
+
+   num_rows = vv1.add_rows(2, 44);
+   for (int i : vv1)
+      assert(i == 44);
+   assert(num_rows == 3);
+   assert(vv1.get_num_rows() == 3);
+   assert(vv1.get_num_cols() == 2);
+
+   // try adding columns over vv1 again
+   num_cols = vv1.add_cols(3, 44);
+   for (int i : vv1)
+      assert(i == 44);
+   assert(num_cols == 5);
+   assert(vv1.get_num_cols() == 5);
+   assert(vv1.get_num_rows() == 3);
 }
 
 // constructor_tests_vec2d() : tests constructor and a few helper methods
 void constructor_tests_vec2d() {
    Vec2d<int> matrix;
    Vec2d<int> matrix1(3, 2);
+   Vec2d<int> matrix2(100, 100);
 
    assert(matrix1.get_num_rows() == 3);
    assert(matrix1.get_num_cols() == 2);
@@ -128,10 +202,21 @@ void constructor_tests_vec2d() {
    assert(matrix1[0][1] == 80);
    matrix1[0][0] = 100;
    assert(matrix1[0][0] == 100);
+
+   for (int i : matrix2)
+      assert(i == 0);
+   assert(matrix2.get_num_cols() == 100);
+   assert(matrix2.get_num_rows() == 100);
+
+   // special constructor usage
+   Vec2d<Integer> vv(2, 2, Integer(300));
+   for (Integer i : vv)
+      assert(i.get_int() == 300);
 }
 
 int main() {
    constructor_tests_vec2d();
    iterator_tests();
    internal_iterator_tests();
+   other_vec2d_methods_tests();
 }
